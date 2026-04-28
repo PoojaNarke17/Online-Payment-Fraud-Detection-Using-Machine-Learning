@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuralGuard | Transaction Scanner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f52ba;
+            --primary-hover: #0b3d8a;
+            --primary-light: #e6f0fa;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --surface: #ffffff;
+            --background: #f8fafc;
+            --text-dark: #0f172a;
+            --text-medium: #475569;
+            --text-light: #94a3b8;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        /* Top Navigation */
+        nav {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-medium);
+            font-size: 1.05rem;
+        }
+
+        /* Card Form */
+        .form-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-icon {
+            color: var(--primary);
+        }
+
+        /* Form Controls */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        @media(max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-medium);
+        }
+
+        .form-control {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text-dark);
+            background: white;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Custom Toggle Buttons */
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .type-btn {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-medium);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .type-btn:hover {
+            border-color: #cbd5e1;
+            background: var(--background);
+        }
+
+        .type-btn.active {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .flag-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .flag-btn.active[data-val="1"] {
+            background: var(--danger-light);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Helper Actions */
+        .helper-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .helper-btn {
+            background: none;
+            border: none;
+            color: var(--text-medium);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-color: transparent;
+            transition: all 0.2s;
+        }
+
+        .helper-btn:hover {
+            color: var(--primary);
+            text-decoration-color: var(--primary);
+        }
+
+        /* Processing Overlay */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--primary-light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .overlay-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .overlay-status {
+            color: var(--text-medium);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            transition: width 0.1s linear;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="/" class="brand">
+            <div class="brand-icon">N</div>
+            NeuralGuard
+        </a>
+    </nav>
+
+    <!-- Processing Overlay -->
+    <div class="overlay" id="overlay">
+        <div class="spinner"></div>
+        <div class="overlay-title">Analyzing Transaction</div>
+        <div class="overlay-status" id="overlayStatus">Verifying secure connection...</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progFill"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Transaction Scanner</h1>
+            <p class="page-subtitle">Enter transaction details below for real-time AI risk assessment.</p>
+        </div>
+
+        <div class="form-card">
+            <form action="/submit" method="POST" id="scanForm">
+                
+                <input type="hidden" name="type" id="typeInput" required>
+                <input type="hidden" name="isFlaggedFraud" id="flagInput" value="0">
+
+                <div class="form-section">
+                    <div class="section-title">
+                        <svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        Transaction Category
+                    </div>
+                    <div class="type-grid">
+                        <div class="type-btn" onclick="selectType(0, this)">CASH_IN</div>
+                        <div class="type-btn" onclick="selectType(1, this)">CASH_OUT</div>
+                        <div class="type-btn" onclick="selectType(2, this)">DEBIT</div>
+                        <div class="type-btn" onclick="selectType(3, this)">PAYMENT</div>
+                        <div class="type-btn" onclick="selectType(4, this)">TRANSFER</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title">
+                        <svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        Core Details
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Time Step (Hours)</label>
+                            <input type="number" name="step" class="form-control" placeholder="1" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount (₹)</label>
+                            <input type="number" name="amount" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title">
+                        <svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        Account Balances
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Origin Balance Before</label>
+                            <input type="number" name="oldbalanceOrg" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Origin Balance After</label>
+                            <input type="number" name="newbalanceOrig" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Destination Balance Before</label>
+                            <input type="number" name="oldbalanceDest" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Destination Balance After</label>
+                            <input type="number" name="newbalanceDest" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title">
+                        <svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                        Bank Security Flag
+                    </div>
+                    <div class="type-grid">
+                        <div class="type-btn flag-btn active" id="flag0" data-val="0" onclick="selectFlag(0)">✓ Unflagged</div>
+                        <div class="type-btn flag-btn" id="flag1" data-val="1" onclick="selectFlag(1)">⚠ Flagged by Bank</div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    Process Transaction
+                </button>
+            </form>
+
+            <div class="helper-actions">
+                <button type="button" class="helper-btn" onclick="loadSample(true)">Load Fraudulent Case</button>
+                <button type="button" class="helper-btn" onclick="loadSample(false)">Load Legitimate Case</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectType(val, el) {
+            document.querySelectorAll('.type-grid .type-btn:not(.flag-btn)').forEach(btn => btn.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('typeInput').value = val;
+        }
+
+        function selectFlag(val) {
+            document.getElementById('flag0').classList.remove('active');
+            document.getElementById('flag1').classList.remove('active');
+            document.getElementById('flag' + val).classList.add('active');
+            document.getElementById('flagInput').value = val;
+        }
+
+        document.getElementById('scanForm').addEventListener('submit', function(e) {
+            if(document.getElementById('typeInput').value === '') {
+                e.preventDefault();
+                alert('Please select a Transaction Category.');
+                return;
+            }
+            
+            const overlay = document.getElementById('overlay');
+            overlay.classList.add('active');
+            
+            const statuses = [
+                "Extracting features from input...",
+                "Running XGBoost anomaly detection...",
+                "Comparing against historical patterns...",
+                "Finalizing risk assessment..."
+            ];
+            
+            let w = 0;
+            let statusIdx = 0;
+            const progFill = document.getElementById('progFill');
+            const statusEl = document.getElementById('overlayStatus');
+            
+            const interval = setInterval(() => {
+                w += 3;
+                progFill.style.width = w + '%';
+                
+                if (w % 25 === 0 && statusIdx < statuses.length) {
+                    statusEl.innerText = statuses[statusIdx];
+                    statusIdx++;
+                }
+                
+                if (w >= 100) {
+                    clearInterval(interval);
+                }
+            }, 30);
+        });
+
+        function loadSample(isFraud) {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            if (isFraud) {
+                selectType(4, document.querySelectorAll('.type-btn')[4]); // TRANSFER
+                inputs[0].value = 2;      // step
+                inputs[1].value = 150000; // amount
+                inputs[2].value = 150000; // oldbalanceOrg
+                inputs[3].value = 0;      // newbalanceOrig
+                inputs[4].value = 0;      // oldbalanceDest
+                inputs[5].value = 0;      // newbalanceDest
+                selectFlag(0);
+            } else {
+                selectType(3, document.querySelectorAll('.type-btn')[3]); // PAYMENT
+                inputs[0].value = 1;      // step
+                inputs[1].value = 520.00; // amount
+                inputs[2].value = 8500.00;// oldbalanceOrg
+                inputs[3].value = 7980.00;// newbalanceOrig
+                inputs[4].value = 0;      // oldbalanceDest
+                inputs[5].value = 0;      // newbalanceDest
+                selectFlag(0);
+            }
+        }
+    </script>
+</body>
+</html>
